@@ -1,0 +1,23 @@
+{
+  "name": "trust-but-verify",
+  "version": "1.0.0",
+  "description": "Hallucination-proof agent: Strands Decider 2B guardrails + Amazon Bedrock. Agent Experience Hackathon: Strands Decider.",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "demo": "tsx src/demo.ts",
+    "agent": "tsx src/agent.ts",
+    "eval": "tsx src/eval/compare.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@strands-agents/sdk": "^1.21.0",
+    "@aws-sdk/client-bedrock-runtime": "^3.600.0",
+    "zod": "^4.5.4"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "tsx": "^4.16.0",
+    "typescript": "^5.5.0"
+  }
+}
