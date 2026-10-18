@@ -6,12 +6,12 @@
 Grounded is a Bedrock-powered assistant (payments, travel, files, weather) with a
 twist: it is *deliberately eager* — it tries to call tools immediately, the way
 real agents hallucinate. Before **every** tool call, a local **Strands Decider 2B**
-model answers two yes/no questions in ~115ms and the call only runs if grounded.
+model answers two yes/no questions locally and the call only runs if grounded.
 
 Ask "What's the weather?" (no city) and watch: the agent proposes
-`get_weather(city="Paris")`, Decider returns `args_grounded=false,
-is_premature=true`, and the agent asks *which city* instead of confidently
-reporting Paris weather. Same gate stops a $999 payment to "Alice" and a
+`get_weather(city="Paris")`, Decider returns `args_grounded=false`
+and the agent asks *which city* instead of confidently reporting Paris weather.
+Same gate stops a $999 payment to "Alice" and a half-specified trip booking.
 half-specified trip booking.
 
 ## The decision handed to Decider 2B
@@ -41,12 +41,10 @@ together, tune `DECIDER_MIN_CONFIDENCE`, add your tools to `allowedTools` to ski
 read-only ones.
 
 ## What I learned + measured
-- **Cost bonus (measured `npm run eval` on CPU-only laptop):** invented city
-  blocked (grounded=0.15), stated $999→Alice allowed (0.90), stated Paris
-  allowed (0.92), unstated amount flagged (0.65 → confirm under our 0.7 bar).
-  Decider ~6s/call here at $0 vs LLM-judge ~1.5s + ~$0.003 — on CPU the win
-  is cost ($0 × every tool call), privacy, and offline use; on GPU the launch
-  post measures 115ms (~13× faster than an LLM round-trip).
+- **Cost bonus (`npm run eval`):** invented values blocked, stated values allowed,
+  uncertain values flagged for confirmation (0.7 bar). Decider runs locally at $0
+  vs ~$0.003 per LLM-judge call: the win is cost ($0 x every tool call), privacy,
+  and offline use; on a GPU the launch post measures ~115ms per decision.
 - **Prompt-leakage trap:** pasting proposed args into the state makes Decider
   answer "yes, stated" (0.85) for values the user never said — state must be
   user messages only, proposed call inside the question.

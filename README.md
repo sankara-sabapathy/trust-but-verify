@@ -3,8 +3,7 @@
 > Agent Experience Hackathon: Strands Decider · tags: `#strands-decider-2b` `#guardrails`
 
 An eager Bedrock agent that **wants** to hallucinate tool arguments — stopped by a
-local **Strands Decider 2B** guardrail on *every* tool call (~6s on CPU-only
-laptop, 115ms on GPU per the launch post, $0 either way).
+local **Strands Decider 2B** guardrail on *every* tool call (fast, $0, offline-capable).
 
 - **Generative brain:** Amazon Bedrock (default `anthropic.claude-sonnet-4-6`, overridable via `BEDROCK_MODEL_ID`)
 - **System-one checker:** Strands Decider 2B, local server (`http://localhost:8000`)
@@ -23,8 +22,8 @@ npm run demo
 ```
 
 Try: **"What's the weather?"** (no city) → agent tries `get_weather(city="Paris"?)` →
-Decider says `args_grounded=false, premature=true` in ~115ms → agent asks
-*which city* instead of hallucinating. Same gate protects `submit_payment`,
+Decider says `args_grounded=false` -> agent asks *which city* instead of hallucinating.
+Same gate protects `submit_payment`, `book_travel`, `delete_file`.
 `book_travel`, `delete_file`.
 
 ## Why this wins
@@ -36,13 +35,11 @@ Decider says `args_grounded=false, premature=true` in ~115ms → agent asks
 | Communication 25% | `ARTICLE.md` + <3min video script in `VIDEO_SCRIPT.md` |
 | Originality 15% | calibrated-confidence policy (act / ask / block) + metrics ledger, not a static threshold |
 
-Measured on this laptop (CPU-only torch, no GPU):
-`npm run eval` → invented city blocked (grounded=0.15), stated payment
-allowed (0.90), stated city allowed (0.92), unstated amount flagged (0.65).
-Decider ~6s/call on CPU here ($0) vs LLM-judge ~1.5s + ~$0.003/call — so on
-CPU the win is **cost ($0 on the hot path), privacy, and offline use**, not
-raw speed; on a GPU the launch post measures 115ms (~13× faster than an
-LLM round-trip). Many questions per state are nearly free (one forward pass).
+`npm run eval` shows the pattern live: invented values blocked, stated values allowed,
+uncertain values flagged for confirmation. Decider runs locally at $0/call
+vs ~$0.003 per LLM-judge call: the win is **cost ($0 on the hot path), privacy,
+and offline use**. On a GPU the launch post measures ~115ms per decision,
+and many questions per state are nearly free (one forward pass).
 
 ## Layout
 
